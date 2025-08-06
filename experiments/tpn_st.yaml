@@ -1,0 +1,131 @@
+MODEL:
+  BACKBONE:
+    OUTPUT_STAGES:
+    - 2
+    - 3
+    - 4
+    TYPE: shufflenetv2_1.0x
+    MODEL_SIZE: 1.0x
+  HIDDEN_DIM: 
+    - 116
+    - 232
+    - 464
+  POSITION_EMBEDDING: sine
+  ANCHOR:
+    NUM: 20
+    FACTOR: 1
+    BIAS: 0.5
+  FPN:
+    TYPE: TREFPN
+    PRE_CONV: 
+      - 192
+      - 192
+      - 192
+    WITH_POS: false
+    NBLOCKS: 2
+    NHEADS: 6
+    MLP_RATIOS: 4
+  HEAD:
+    TYPE: CONV
+    IN_DIM: 192
+  OUTPUT:
+    WITH_ANCHORS: true
+TRAIN:
+  BACKBONE_MULTIPLIER: 0.1
+  BATCH_SIZE: 64
+  EPOCH: 300
+  FREEZE_LAYERS:
+  - conv1
+  ACTOR: TPNSTACTOR
+  FREEZE_BACKBONE_BN: true
+  CENTER_WEIGHT: 2.0
+  CLS_WEIGHT: 5.0
+  L1_WEIGHT: 2.0
+  GIOU_WEIGHT: 2.0
+  GRAD_CLIP_NORM: 0.1
+  LR: 0.0001
+  LR_DROP_EPOCH: 180
+  NUM_WORKER: 8
+  OPTIMIZER: ADAMW
+  PRINT_INTERVAL: 50
+  SCHEDULER:
+    TYPE: step
+    DECAY_RATE: 0.1
+  WEIGHT_DECAY: 0.00001
+  VAL_EPOCH_INTERVAL: 10
+
+DATA:
+  SAMPLER_MODE: trident_pro
+  MAX_SAMPLE_INTERVAL: [150 , 150 , 150, 150]
+  MEAN:
+  - 0.485
+  - 0.456
+  - 0.406
+  STD:
+  - 0.229
+  - 0.224
+  - 0.225
+  SEARCH:
+    CENTER_JITTER: 4.5
+    FACTOR: 5.0
+    SCALE_JITTER: 0.25
+    SIZE: 320
+    NUMBER: 1
+  TEMPLATE:
+    CENTER_JITTER: 0
+    FACTOR: 1.5
+    SCALE_JITTER: 0
+    SIZE: 80
+    NUMBER: 5
+  TRAIN:
+    DATASETS_NAME:
+    # - LASOT
+    - GOT10K_vottrain
+    # - COCO17
+    # - TRACKINGNET
+    DATASETS_RATIO:
+    # - 1
+    # - 1
+    # - 1
+    - 1
+    SAMPLE_PER_EPOCH: 60000
+  VAL:
+    DATASETS_NAME:
+    - GOT10K_votval
+    DATASETS_RATIO:
+    - 1
+    SAMPLE_PER_EPOCH: 10000
+TEST:
+  EPOCH: 300
+  SEARCH_FACTOR: 5.0
+  SEARCH_SIZE: 320
+  TEMPLATE_FACTOR: 1.5 
+  TEMPLATE_SIZE: 80
+  HANNING_FACTOR: 0.01
+  UPDATE_INTERVALS:
+    LASOT: [200]
+    GOT10K_TEST: [200]
+    TRACKINGNET: [25]
+    VOT20: [10]
+    VOT20LT: [200]
+    ANY: 150
+
+    #---------------------------#
+    # c: enable correction
+    # s: enable smoothing
+    # sc: enable corrction & smoothing
+    # NUM: UPDATE_INTERVALS
+    #---------------------------#
+
+
+    # UAV123: 150_c
+    # UAV123_10fps: 50_s
+    # UAV20L: 150_sc
+    # got10k_test: 25_s
+    # dtb70: 25_sc
+    # visdrone: 75_c or 100_s
+    # uavdt: 25_sc
+    # otb100: 150
+    # uavtrack: 150_sc
+    # lasot: 150_s
+    # uavtrackl: 150_sc
